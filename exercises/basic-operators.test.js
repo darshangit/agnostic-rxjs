@@ -28,7 +28,7 @@ const getResult = async (observable) => {
       },
     });
   });
-};
+};q
 
 describe('Basic Operators', () => {
   it('should take the first 5 values and map them to the word "DINOSAUR"', async () => {
