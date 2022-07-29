@@ -9,6 +9,8 @@ import {
   setStatus,
 } from './utilities';
 
-const character$ = from(getCharacter(1)).pipe(pluck('name'));
+// const character$ = from(getCharacter(1)).pipe(pluck('name'));
 
+//get 4 characters - mergemap - fired in parallel
+const character$ = of(1, 2, 3, 4).pipe(mergeMap((n) => from(getCharacter(n))));
 character$.subscribe(render);
