@@ -26,11 +26,44 @@ import {
   endpointFor,
   search,
   form,
+  renderPokemon,
 } from '../pokemon/utilities';
 
-const endpoint = 'http://localhost:3333/api/pokemon?delay=100';
+const endpoint = 'http://localhost:3333/api/pokemon';
 
-const search$ = fromEvent(search, 'input').pipe(
+const searchPokemon = (searchTerm) => {
+  return fromFetch(endpoint + 'search/' + searchTerm).pipe(
+    mergeMap((response) => response.json()),
+  );
+};
+
+const getPokemonData = (pokemon) => {
+  return fromFetch(endpoint + pokemon.id).pipe(
+    mergeMap((response) => response.json()),
+  );
+};
+
+const search$ = fromEvent(form, 'submit').pipe(
+  map(() => search.value),
+  switchMap(searchPokemon),
+  pluck('pokemon'),
+  mergeMap((pokemon) => pokemon),
+  first(),
+  switchMap((pokemon) => {
+    const pokemon$ = of(pokemon);
+
+    const additionData$ = getPokemonData(pokemon).pipe(
+      map((data) => ({
+        ...pokemon,
+        data,
+      })),
+    );
+    return merge(pokemon$, additionData$);
+  }),
+  tap(renderPokemon),
+);
+
+const oldSearch$ = fromEvent(search, 'input').pipe(
   debounceTime(300),
   map((event) => event.target.value),
   distinctUntilChanged(),
